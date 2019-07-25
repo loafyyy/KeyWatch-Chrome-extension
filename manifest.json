@@ -11,6 +11,15 @@
     "default_title": "Click to see popup"
   },
 
+  "permissions": [
+    "*://*.jsonplaceholder.typicode.com/*"
+  ],
+
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+
   "content_scripts": [
    {
      "matches": ["<all_urls>"],
