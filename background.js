@@ -1,14 +1,33 @@
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
 
-  	// make HTTP request
-  	if (request.message = "HttpRequest") {
-		const url = 'https://jsonplaceholder.typicode.com/todos/1';
+  	const url = 'http://127.0.0.1:5000/';
 
-		fetch(url)
+  	// make HTTP request
+  	if (request.message == "post") {
+
+      var time = request.time
+      var hold = request.hold
+      var latency = request.latency
+      var side = request.side
+
+      console.log(time)
+  		
+		fetch(url, {
+    		method: 'post',
+    		headers: {
+      			'Content-Type': 'application/json'
+    		},
+    		body: JSON.stringify({
+    	      time: time, 
+            hold: hold, 
+            latency: latency,
+            side: side,
+    		})
+  		})
 	        .then(response => response.text())
 	        .then(text => sendResponse(text))
-	        .catch(error => sendResponse("error")) 
+	        .catch(error => sendResponse("error")); 
 	    return true;  // will respond asynchronously
 	}
 });
