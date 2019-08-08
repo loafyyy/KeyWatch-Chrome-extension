@@ -26,11 +26,13 @@ document.addEventListener("keydown", function(e) {
         return;
     }
 
+    lastKeyDown = keyDown;
+    keyDown = Date.now();
+
     countPress = false;
     pressed = true;
 
-    var charCode = e.keyCode;
-	var key = String.fromCharCode(charCode).toLowerCase();
+	var key = String.fromCharCode(e.keyCode).toLowerCase();
 
     // convert weird characters
     switch (key) {
@@ -43,6 +45,7 @@ document.addEventListener("keydown", function(e) {
         case '¿': key = '/';
     }
 
+    // which hand was used to press key
     if (left_characters.includes(key)) {
         side = 'L';
     } 
@@ -51,31 +54,27 @@ document.addEventListener("keydown", function(e) {
         side = 'R';
     }
 
+    // ignore some characters
     else {
         return;
     }
 
     console.log(key);
-
     num_clicks++;
-
-    keyDown = Date.now();
+    let lat = keyDown - lastKeyDown;
 
     // calculate latency
-    if (lastKeyDown != -1) {
+    if (lastKeyDown != -1 && lat < MAX_LATENCY) { // if there was a break between keys - restart counting
 
-        if (keyDown - lastKeyDown < MAX_LATENCY) { // if there was a break between keys - restart counting
-            latency.push(keyDown - lastKeyDown);
-            console.log("latency: " + (keyDown - lastKeyDown));
-            countPress = true; 
+        latency.push(lat);
+        console.log("latency: " + (lat));
+        countPress = true; 
 
-            click_times.push(Date.now());
-            // keep track of which hand was used
-            sides.push(side);
-        } 
+        // time of the click
+        click_times.push(keyDown);
+        // keep track of which hand was used
+        sides.push(side);
     } 
-
-    lastKeyDown = keyDown;
 
 });
 
@@ -93,8 +92,7 @@ document.addEventListener("keyup", function(e) {
         return;
     }
 
-    var charCode = e.keyCode;
-    var key = String.fromCharCode(charCode).toLowerCase();
+    var key = String.fromCharCode(e.keyCode).toLowerCase();
 
     // convert weird characters
     switch (key) {
@@ -113,8 +111,9 @@ document.addEventListener("keyup", function(e) {
 
     keyUp = Date.now();
 
-    hold_times.push(keyUp - keyDown);
-    console.log("hold: " + (keyUp - keyDown));
+    let hold_time = keyUp - keyDown;
+    hold_times.push(hold_time);
+    console.log("hold: " + hold_time);
 
     // make POST request
     if (num_clicks >= CLICKS_BATCH_SIZE) {
@@ -132,6 +131,7 @@ document.addEventListener("keyup", function(e) {
             console.log(response);
         });
 
+        // reset arrays after post request
         num_clicks = 0;
         hold_times.length = 0;
         latency.length = 0;
