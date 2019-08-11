@@ -76,7 +76,7 @@ document.addEventListener("keydown", function(e) {
         sides.push(side);
     } 
 
-});
+}, true);
 
 
 // triggered when keyboard key is released
@@ -138,4 +138,4 @@ document.addEventListener("keyup", function(e) {
         sides.length = 0;
         click_times.length = 0;
     }
-});
+}, true);
